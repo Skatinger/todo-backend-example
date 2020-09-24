@@ -1,4 +1,8 @@
-version: '3.1'
+version: '3'
+
+volumes:
+  cache: # win10 docker support
+
 services:
   app:
     build:
@@ -7,18 +11,19 @@ services:
     depends_on:
       - db
     volumes:
-      - ./:/myapp
+      - ./:/app
     ports:
-      - "4000:8080" # exposes 4000 to host
-    command: tail -F anything # python run_server.py # bash
+      - 4000:8000 # exposes 4000 to host
+      - 4100:8080 # response test script port
+    command: python response_test.py #tail -F anything # python run_server.py # bash
 
 
   db:
     image: mysql:8.0.16
     ports:
-      - "4001:3306"
+      - 4001:3306
     environment:
       MYSQL_ROOT_PASSWORD: 1324
       MYSQL_DATABASE: db
-      MYSQL_USER: backend 
+      MYSQL_USER: backend
       MYSQL_PASSWORD: 1234

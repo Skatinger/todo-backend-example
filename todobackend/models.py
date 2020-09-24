@@ -1,0 +1,47 @@
+from os import getenv
+from uuid import uuid4
+
+
+class Task:
+
+    db = {}
+
+    @classmethod
+    def create_object(cls, content, url_for):
+        uuid = str(uuid4())
+        HOST = getenv('HOST', 'localhost:8000')
+        obj = {
+            'uuid': uuid,
+            'completed': False,
+            'url': 'http://{HOST}{}'.format(
+                url_for(uuid=uuid).path, **locals())
+        }
+        obj.update(content)
+        cls.set_object(uuid, obj)
+        return obj
+
+    @classmethod
+    def all_objects(cls):
+        return list(cls.db.values())
+
+    @classmethod
+    def delete_all_objects(cls):
+        cls.db = {}
+
+    @classmethod
+    def get_object(cls, uuid):
+        return cls.db[uuid]
+
+    @classmethod
+    def delete_object(cls, uuid):
+        del cls.db[uuid]
+
+    @classmethod
+    def set_object(cls, uuid, value):
+        cls.db[uuid] = value
+
+    @classmethod
+    def update_object(cls, uuid, value):
+        obj = cls.db[uuid]
+        obj.update(value)
+        return obj

@@ -2,7 +2,9 @@ from logging import getLogger, basicConfig, INFO
 from os import getenv
 from aiohttp import web
 import aiohttp_cors
+import aiomysql
 from aiohttp_swagger import setup_swagger
+import asyncio
 
 from .views import (
     IndexView,
@@ -36,6 +38,15 @@ async def init(loop):
     cors.add(
         app.router.add_route('*', '/todos/{uuid}', TodoView, name='todo'),
         webview=True)
+
+    # Setup database
+    db_loop = asyncio.get_event_loop()
+    conn = await aiomysql.connect(host='0.0.0.0', port='3006',
+                                   user='root', password='1324', db='db', loop=db_loop)
+
+    cur = await conn.cursor()
+    await cur.execute("SHOW DATABASES")
+    print(cur.description)
 
     # Config
     setup_swagger(app, swagger_url="/api/v1/doc", swagger_from_file="swagger.yaml")

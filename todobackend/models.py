@@ -1,5 +1,6 @@
 from os import getenv
 from uuid import uuid4
+import aiomysql
 
 
 class Task:

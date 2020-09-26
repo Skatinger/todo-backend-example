@@ -11,16 +11,17 @@ logger = getLogger(__name__)
 
 class IndexView(View, CorsViewMixin):
     async def get(self):
-        return json_response(Task.all_objects())
+        response = await Task.all_objects(self.request.app['db'])
+        return json_response(response)
 
     async def post(self):
         content = await self.request.json()
-        return json_response(
-            Task.create_object(content, self.request.app.router['todo'].url_for)
-        )
+        response = await Task.create_object(content, self.request.app.router['todo'].url_for,
+            self.request.app['db'])
+        return json_response(response)
 
     async def delete(self):
-        Task.delete_all_objects()
+        await Task.delete_all_objects(self.request.app['db'])
         return Response()
 
 
@@ -30,13 +31,14 @@ class TodoView(View, CorsViewMixin):
         self.uuid = request.match_info.get('uuid')
 
     async def get(self):
-        return json_response(Task.get_object(self.uuid))
+        response = await Task.get_object(self.uuid, self.request.app['db'])
+        return json_response(response)
 
     async def patch(self):
         content = await self.request.json()
-        return json_response(
-            Task.update_object(self.uuid, content))
+        response = await Task.update_object(self.uuid, content, self.request.app['db'])
+        return json_response(response)
 
     async def delete(self):
-        Task.delete_object(self.uuid)
+        await Task.delete_object(self.uuid, self.request.app['db'])
         return Response()

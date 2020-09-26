@@ -1,6 +1,7 @@
 from os import getenv
 from uuid import uuid4
 import aiomysql
+from . import database
 
 
 class Task:
@@ -8,7 +9,8 @@ class Task:
     db = {}
 
     @classmethod
-    def create_object(cls, content, url_for):
+    async def create_object(cls, content, url_for, conn):
+        # old
         uuid = str(uuid4())
         HOST = getenv('HOST', 'localhost:8000')
         obj = {
@@ -19,22 +21,33 @@ class Task:
         }
         obj.update(content)
         cls.set_object(uuid, obj)
-        return obj
+        # end old
+
+        res = await database.DBConnector(conn).create(content)
+        res["url"] = 'http://localhost:8000/todos/' + str(res["uuid"])
+        return res
 
     @classmethod
-    def all_objects(cls):
-        return list(cls.db.values())
+    async def all_objects(cls, conn):
+        result = await database.DBConnector(conn).read()
+        print("REEEEEEEESULT:")
+        print(list(result))
+        print("VS")
+        print(list(cls.db.values()))
+
+        # return list(cls.db.values())
+        return result
 
     @classmethod
-    def delete_all_objects(cls):
+    async def delete_all_objects(cls, conn):
         cls.db = {}
 
     @classmethod
-    def get_object(cls, uuid):
+    async def get_object(cls, uuid, conn):
         return cls.db[uuid]
 
     @classmethod
-    def delete_object(cls, uuid):
+    async def delete_object(cls, uuid, conn):
         del cls.db[uuid]
 
     @classmethod

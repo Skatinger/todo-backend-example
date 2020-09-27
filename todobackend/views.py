@@ -21,6 +21,7 @@ class IndexView(View, CorsViewMixin):
         return json_response(response)
 
     async def delete(self):
+        print("in dleete of index view")
         await Task.delete_all_objects(self.request.app['db'])
         return Response()
 
@@ -40,5 +41,6 @@ class TodoView(View, CorsViewMixin):
         return json_response(response)
 
     async def delete(self):
+        print("in dleete of todoview")
         await Task.delete_object(self.uuid, self.request.app['db'])
         return Response()

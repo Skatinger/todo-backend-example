@@ -35,8 +35,8 @@ class Task:
         print("VS")
         print(list(cls.db.values()))
 
-        # return list(cls.db.values())
-        return result
+        return list(cls.db.values())
+        # return result
 
     @classmethod
     async def delete_all_objects(cls, conn):
@@ -48,6 +48,7 @@ class Task:
 
     @classmethod
     async def delete_object(cls, uuid, conn):
+        await database.DBConnector(conn).delete(uuid)
         del cls.db[uuid]
 
     @classmethod

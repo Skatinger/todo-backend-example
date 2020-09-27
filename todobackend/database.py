@@ -53,5 +53,10 @@ class DBConnector:
     def update(obj, db):
         return 0
 
-    def delete(obj, db):
-        return 0
+    async def delete(self, uuid, db):
+        print("deleting: " + str(uuid)) 
+        cur = await self.connector.cursor()
+        query = "DELETE FROM `db`.`tasks` WHERE uuid = {}".format(uuid)
+        await cur.execute(query)
+        await self.connector.commit()
+        await cur.close()

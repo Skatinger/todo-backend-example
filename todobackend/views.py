@@ -15,6 +15,7 @@ class IndexView(View, CorsViewMixin):
         return json_response(response)
 
     async def post(self):
+        print("why is this a post")
         content = await self.request.json()
         response = await Task.create_object(content, self.request.app.router['todo'].url_for,
             self.request.app['db'])
@@ -37,6 +38,8 @@ class TodoView(View, CorsViewMixin):
 
     async def patch(self):
         content = await self.request.json()
+        print("patch content: -------------")
+        print(content)
         response = await Task.update_object(self.uuid, content, self.request.app['db'])
         return json_response(response)
 

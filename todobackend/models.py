@@ -23,6 +23,12 @@ class Task:
         cls.set_object(uuid, obj)
         # end old
 
+        # if content["uuid"]:
+        if "uuid" in content:
+            print("got existing object, will patch")
+            # res = await update_object(content, conn)
+        # print("COOONTENT:")
+        # print(content)
         res = await database.DBConnector(conn).create(content)
         res["url"] = 'http://localhost:8000/todos/' + str(res["uuid"])
         return res
@@ -35,8 +41,8 @@ class Task:
         print("VS")
         print(list(cls.db.values()))
 
-        return list(cls.db.values())
-        # return result
+        # return list(cls.db.values())
+        return result
 
     @classmethod
     async def delete_all_objects(cls, conn):
@@ -56,7 +62,12 @@ class Task:
         cls.db[uuid] = value
 
     @classmethod
-    def update_object(cls, uuid, value):
-        obj = cls.db[uuid]
-        obj.update(value)
+    async def update_object(cls, uuid, value, conn):
+        # obj = cls.db[uuid]
+        # obj.update(value)
+
+        # new
+        await database.DBConnector(conn).update(uuid, value)
+        obj = await get_object(uuid, conn)
+
         return obj

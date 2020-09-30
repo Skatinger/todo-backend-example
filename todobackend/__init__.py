@@ -49,23 +49,31 @@ async def init(loop):
     })
 
     # Routes
+    # todos
     cors.add(
         app.router.add_route('*', '/todos/', IndexView),
         webview=True)
     cors.add(
-        app.router.add_route('*', '/tags/{uuid}/todos/', IndexView),
-        webview=True)
-    cors.add(
         app.router.add_route('*', '/todos/{uuid}', TodoView, name='todo'),
         webview=True)
+    # relations
     cors.add(
-        app.router.add_route('*', '/todos/{uuid}/tags/', TagIndexView),
+        app.router.add_route('*', '/todos/{uuid}/tags/', IndexView),
         webview=True)
+    cors.add(
+        app.router.add_route('*', '/todos/{uuid}/tags/{tag_id}', TagView),
+        webview=True)
+
+
+    # tags
     cors.add(
         app.router.add_route('*', '/tags/', TagIndexView),
         webview=True)
     cors.add(
         app.router.add_route('*', '/tags/{uuid}', TagView, name='tag'),
+        webview=True)
+    cors.add(
+        app.router.add_route('*', '/tags/{tag_id}/todos/', TagIndexView),
         webview=True)
 
     #db setup

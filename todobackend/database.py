@@ -28,7 +28,7 @@ class DBConnector:
         cols = ", ".join(cols)
         fields = ", ".join(fields)
         query = "INSERT INTO `db`.`{}` ({}) VALUES ({});".format(model, fields, cols)
-        print(query)
+        # print(query)
         await cur.execute(query)
         await self.connector.commit()
         obj["id"] = cur.lastrowid
@@ -50,16 +50,34 @@ class DBConnector:
                    INNER JOIN `{}` ON `tasks_tags`.`{}_id` = `{}`.`id`
                    WHERE `{}`.`id` = {}
         '''.format(model2, model1, model1, model1, model1, uuid)
+        print("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
         print(query)
         cur = await self.connector.cursor()
         await cur.execute(query)
         r = await cur.fetchall()
+        print("result:")
+        print(r)
         r = [res[0] for res in r]
+        print("after:")
+        print(r)
         await self.connector.commit()
         await cur.close()
         return r
 
-    async def deleteRelation(self, id, model):
+    # deletes a single relation between a tag and a record
+    async def deleteRelation(self, id1, id2):
+        query = '''DELETE FROM `db`.`tasks_tags`
+                   WHERE `tasks_id` = {} AND `tags_id` = {}
+                   OR    `tasks_id` = {} AND `tags_id` = {}'''.format(
+                   id1, id2, id2, id1
+                   )
+        cur = await self.connector.cursor()
+        await cur.execute(query)
+        await self.connector.commit()
+        await cur.close()
+
+    # model is the model for which a relation should be deleted
+    async def deleteRelations(self, id, model):
         query = "DELETE FROM `db`.`tasks_tags` WHERE `{}_id` = {}".format(model, id)
         cur = await self.connector.cursor()
         await cur.execute(query)
@@ -88,19 +106,19 @@ class DBConnector:
     async def addRelationTaskTag(self, task_id, tag_id):
         query = "INSERT INTO `db`.`tasks_tags` (tasks_id, tags_id) VALUES ({}, {});".format(task_id, tag_id)
         cur = await self.connector.cursor()
-        print(query)
+        # print(query)
         await cur.execute(query)
         await self.connector.commit()
         await cur.close()
 
 
     async def getMultiple(self, ids, model):
-        print(ids)
+        # print(ids)
         if(len(ids)) > 1:
             return []
-        print(", ".join([str(id) for id in ids]))
+        # print(", ".join([str(id) for id in ids]))
         query = "SELECT * FROM `db`.`{}` WHERE `{}`.`id` IN ({})".format(model, model, ", ".join([str(id) for id in ids]))
-        print(query)
+        # print(query)
         cur = await self.connector.cursor()
         await cur.execute(query)
         r = await cur.fetchall()
@@ -108,7 +126,7 @@ class DBConnector:
         ret = []
         num_fields = len(cur.description)
         field_names = [i[0] for i in cur.description]
-        print(field_names)
+        # print(field_names)
         for res in r:
             dic = {}
             for i in range(len(field_names)):
@@ -119,8 +137,8 @@ class DBConnector:
                     dic[field_names[i]] = res[i]
             ret.append(dic)
 
-        print("ret is:")
-        print(ret)
+        # print("ret is:")
+        # print(ret)
         await cur.close()
         return ret
 
@@ -131,13 +149,13 @@ class DBConnector:
         cur = await self.connector.cursor()
         await cur.execute(query)
         r = await cur.fetchall()
-        print(r)
+        # print(r)
 
         # build objects
         ret = []
         num_fields = len(cur.description)
         field_names = [i[0] for i in cur.description]
-        print(field_names)
+        # print(field_names)
         for res in r:
             dic = {}
             for i in range(len(field_names)):
@@ -148,8 +166,8 @@ class DBConnector:
                     dic[field_names[i]] = res[i]
             ret.append(dic)
 
-        print("ret is:")
-        print(ret)
+        # print("ret is:")
+        # print(ret)
         await cur.close()
         return ret
 

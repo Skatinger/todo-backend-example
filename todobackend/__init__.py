@@ -4,7 +4,7 @@ from aiohttp import web
 import aiohttp_cors
 import aiomysql
 # from . import db
-from databases import Database
+# from databases import Database
 import sqlalchemy as sa
 from aiohttp_swagger import setup_swagger
 import asyncio
@@ -12,6 +12,8 @@ import asyncio
 from .views import (
     IndexView,
     TodoView,
+    TagIndexView,
+    TagView
 )
 
 IP = getenv('IP', '0.0.0.0')
@@ -51,7 +53,19 @@ async def init(loop):
         app.router.add_route('*', '/todos/', IndexView),
         webview=True)
     cors.add(
+        app.router.add_route('*', '/tags/{uuid}/todos/', IndexView),
+        webview=True)
+    cors.add(
         app.router.add_route('*', '/todos/{uuid}', TodoView, name='todo'),
+        webview=True)
+    cors.add(
+        app.router.add_route('*', '/todos/{uuid}/tags/', TagIndexView),
+        webview=True)
+    cors.add(
+        app.router.add_route('*', '/tags/', TagIndexView),
+        webview=True)
+    cors.add(
+        app.router.add_route('*', '/tags/{uuid}', TagView, name='tag'),
         webview=True)
 
     #db setup

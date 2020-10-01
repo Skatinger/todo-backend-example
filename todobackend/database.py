@@ -113,8 +113,9 @@ class DBConnector:
 
 
     async def getMultiple(self, ids, model):
-        # print(ids)
-        if(len(ids)) > 1:
+        print("ids in getMultiple")
+        print(ids)
+        if(len(ids)) < 1:
             return []
         # print(", ".join([str(id) for id in ids]))
         query = "SELECT * FROM `db`.`{}` WHERE `{}`.`id` IN ({})".format(model, model, ", ".join([str(id) for id in ids]))

@@ -16,11 +16,16 @@ class Task:
         print(resp)
         print("ids are:")
         print(ids)
+        print(len(ids))
+        print(len(ids) == 0)
         if(len(ids)) == 0:
             print("got to lenid short 00000")
             return []
         else:
-            return await database.DBConnector(conn).getMultiple(ids, "tags")
+            res = await database.DBConnector(conn).getMultiple(ids, "tags")
+            print("RES is:")
+            print(res)
+            return res
 
     @classmethod
     async def create_object(cls, content, url_for, conn):

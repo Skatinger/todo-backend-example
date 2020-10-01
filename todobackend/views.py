@@ -26,6 +26,7 @@ class IndexView(View, CorsViewMixin):
             print("alksfjöasjflsjfklsfjlsökfjsklfjslfajskdödddddd getting him:")
             print(response)
         else:
+            print("just getting all ")
             response = await Task.all_objects(self.request.app['db'])
         return json_response(response)
 
@@ -53,11 +54,11 @@ class TagIndexView(View, CorsViewMixin):
         self.uuid = request.match_info.get('tag_id')
 
     async def get(self):
-        # if(self.uuid):
+        if(self.uuid):
             # received a specific tag, we want todos for it
-        #     response = await Tag.get_related_tasks(self.uuid, self.request.app['db'])
-        # else:
-        response = await Tag.all_objects(self.request.app['db'])
+            response = await Tag.get_related_tasks(self.uuid, self.request.app['db'])
+        else:
+            response = await Tag.all_objects(self.request.app['db'])
         return json_response(response)
 
     async def post(self):

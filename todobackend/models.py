@@ -9,23 +9,10 @@ class Task:
     @classmethod
     async def get_related_tags(cls, uuid, conn):
         ids = await database.DBConnector(conn).relatedTags(uuid)
-        # print("IDS before call are: ")
-        # print(ids)
-        print("all tags would be:")
-        resp = await Tag.all_objects(conn)
-        print(resp)
-        print("ids are:")
-        print(ids)
-        print(len(ids))
-        print(len(ids) == 0)
-        if(len(ids)) == 0:
-            print("got to lenid short 00000")
-            return []
+        if(len(ids)>0):
+            return await database.DBConnector(conn).getMultiple(ids, "tags")
         else:
-            res = await database.DBConnector(conn).getMultiple(ids, "tags")
-            print("RES is:")
-            print(res)
-            return res
+            return []
 
     @classmethod
     async def create_object(cls, content, url_for, conn):
@@ -44,14 +31,14 @@ class Task:
         result = await database.DBConnector(conn).fetchall("tasks")
         HOST = getenv('HOST', 'localhost:8000')
         for obj in result:
-            obj["tags"] = []
+            obj["tags"] = await database.DBConnector(conn).fetchall("tasks")
             obj["url"] = "http://{}/todos/{}".format(HOST, obj["id"])
 
         return result
 
     @classmethod
     async def delete_all_objects(cls, conn):
-        res = await database.DBConnector(conn).delete_all("tasks")
+        res = await database.DBConnector(conn).deleteall("tasks")
 
     @classmethod
     async def add_tag(cls, task_id, tag_id, conn):
@@ -62,11 +49,7 @@ class Task:
         res = await database.DBConnector(conn).get(uuid, "tasks")
         HOST = getenv('HOST', 'localhost:8000')
         res["url"] = "http://{}/todos/{}".format(HOST, res["id"])
-        # add todos
-        # first get all todo ids
         ids = await database.DBConnector(conn).relatedTags(uuid)
-        # print("IDS before call are: ")
-        # print(ids)
         if(len(ids)) == 0:
             res["tags"] = []
         else:
@@ -86,8 +69,7 @@ class Task:
     @classmethod
     async def update_object(cls, uuid, value, conn):
         await database.DBConnector(conn).update(uuid, value, "tasks")
-        obj = await cls.get_object(uuid, conn)
-        return obj
+        return await cls.get_object(uuid, conn)
 
 class Tag:
 
@@ -107,19 +89,17 @@ class Tag:
         result = await database.DBConnector(conn).fetchall("tags")
         HOST = getenv('HOST', 'localhost:8000')
         for obj in result:
-            obj["todos"] = []
+            obj["todos"] = await database.DBConnector(conn).fetchall("tags")
             obj["url"] = "http://{}/tags/{}".format(HOST, obj["id"])
         return result
 
     @classmethod
     async def delete_all_objects(cls, conn):
-        res = await database.DBConnector(conn).delete_all("tags")
+        res = await database.DBConnector(conn).deleteall("tags")
 
     @classmethod
     async def delete_all_by_task(cls, conn, uuid):
         todo = await Task.get_object(uuid, conn)
-        # print("TODO IS")
-        # print(todo)
         tagIds = await database.DBConnector(conn).relatedTags(todo["id"])
         res = await database.DBConnector(conn).deleteMultiple("tags", tagIds)
 
@@ -128,10 +108,7 @@ class Tag:
         res = await database.DBConnector(conn).get(uuid, "tags")
         HOST = getenv('HOST', 'localhost:8000')
         res["url"] = "http://{}/tags/{}".format(HOST, res["id"])
-        # get related tasks
         ids = await database.DBConnector(conn).relatedTasks(uuid)
-        # print("IDS before call are: -------------------------------------------------------------")
-        # print(ids)
         if(len(ids)) == 0:
             res["todos"] = []
         else:
@@ -142,8 +119,6 @@ class Tag:
     @classmethod
     async def get_related_tasks(cls, uuid, conn):
         ids = await database.DBConnector(conn).relatedTasks(uuid)
-        # print("IDS before call are: ")
-        # print(ids)
         if(len(ids)) == 0:
             return []
         else:
@@ -157,6 +132,4 @@ class Tag:
     @classmethod
     async def update_object(cls, uuid, value, conn):
         await database.DBConnector(conn).update(uuid, value, "tags")
-        obj = await cls.get_object(uuid, conn)
-        print(obj)
-        return obj
+        return await cls.get_object(uuid, conn)

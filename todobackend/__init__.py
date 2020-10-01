@@ -3,9 +3,6 @@ from os import getenv
 from aiohttp import web
 import aiohttp_cors
 import aiomysql
-# from . import db
-# from databases import Database
-import sqlalchemy as sa
 from aiohttp_swagger import setup_swagger
 import asyncio
 
@@ -22,9 +19,8 @@ PORT = getenv('PORT', '8000')
 basicConfig(level=INFO)
 logger = getLogger(__name__)
 
-#
+# connects to db, saves a connector the the app dict
 async def init_db(app):
-    # await db.connect()
     connection = await aiomysql.connect(
         host='db',
         user='root',
@@ -64,7 +60,6 @@ async def init(loop):
         app.router.add_route('*', '/todos/{uuid}/tags/{tag_id}', TagView),
         webview=True)
 
-
     # tags
     cors.add(
         app.router.add_route('*', '/tags/', TagIndexView),
@@ -78,20 +73,6 @@ async def init(loop):
 
     #db setup
     await init_db(app)
-    # database = Database("mysql:///db")
-    # database.connect()
-    # app['db'] = database
-
-    # Setup database
-    # db_loop = asyncio.get_event_loop()
-    # # the host is configured in docker-compose.yml and resolved to the ip of the container
-    # conn = await aiomysql.connect(host='db',
-                                   # user='root', password='1324', db='db', loop=db_loop)
-    #
-    # cur = await conn.cursor()
-    # await cur.execute("SHOW DATABASES")
-    # print(cur.description)
-
 
     # Config
     setup_swagger(app, swagger_url="/api/v1/doc", swagger_from_file="swagger.yaml")

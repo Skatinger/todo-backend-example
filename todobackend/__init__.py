@@ -31,6 +31,33 @@ async def init_db(app):
         print("got db connection:" + str(connection))
     app['db'] = connection
 
+async def setup_db(app):
+    conn = app['db']
+    cur = await conn.cursor()
+    try:
+        queries = []
+        queries.append('''CREATE TABLE `db`.`tasks` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `title` VARCHAR(45) NOT NULL,
+                    `completed` INT NOT NULL,
+                    `order` INT NOT NULL,
+                    PRIMARY KEY (`id`));''')
+        queries.append('''CREATE TABLE `db`.`tags` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `title` VARCHAR(45) NOT NULL,
+                    PRIMARY KEY (`id`));''')
+        queries.append('''CREATE TABLE `db`.`tasks_tags` (
+                    `id` INT NOT NULL AUTO_INCREMENT,
+                    `tasks_id` INT NOT NULL,
+                    `tags_id` INT NOT NULL,
+                    PRIMARY KEY (`id`));''')
+        for query in queries:
+            await cur.execute(query)
+        await self.connector.commit()
+        await cur.close()
+    except:
+        return
+
 async def init(loop):
     app = web.Application(loop=loop)
 
@@ -73,6 +100,7 @@ async def init(loop):
 
     #db setup
     await init_db(app)
+    await setup_db(app)
 
     # Config
     setup_swagger(app, swagger_url="/api/v1/doc", swagger_from_file="swagger.yaml")

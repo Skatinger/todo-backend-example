@@ -13,9 +13,8 @@ services:
     volumes:
       - ./:/app
     ports:
-      - 8000:8000 # exposes 4000 to host
-      - 4100:8080 # response test script port
-    command: python response_test.py #tail -F anything # python run_server.py # bash
+      - 8000:8000
+    command: python run_server.py
 
 
   db:
